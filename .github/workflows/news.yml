@@ -1,0 +1,25 @@
+name: news-monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # 10분마다 실행 (실제로는 5~15분 지연될 수 있음)
+  workflow_dispatch:          # Actions 탭에서 수동 실행 버튼도 활성화
+
+permissions:
+  contents: write             # seen.json을 저장소에 다시 저장하기 위한 권한
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 라이브러리 설치
+        run: pip install requests
+
+      - name: 뉴스 봇 실행
+        run: py
