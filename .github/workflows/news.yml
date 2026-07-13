@@ -1,12 +1,12 @@
-name: news-monitor
+name: news-bot
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # 10분마다 실행 (실제로는 5~15분 지연될 수 있음)
-  workflow_dispatch:          # Actions 탭에서 수동 실행 버튼도 활성화
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 permissions:
-  contents: write             # seen.json을 저장소에 다시 저장하기 위한 권한
+  contents: write
 
 jobs:
   run:
@@ -18,8 +18,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: 라이브러리 설치
-        run: pip install requests
+      - run: pip install -r requirements.txt
 
-      - name: 뉴스 봇 실행
-        run: py
+      - run: python news_bot.py
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+
+      - run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add seen.json
+          git diff --cached --quiet || git commit -m "update seen.json"
+          git push
